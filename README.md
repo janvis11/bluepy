@@ -5,7 +5,7 @@ An intelligent conversational interface for querying and visualizing ARGO oceano
 ## Architecture
 
 **Data Flow:** Ingest Argo NetCDF → normalize & store (Postgres + Parquet) → index metadata & embeddings (FAISS/Chroma) → RAG + MCP translator (LLM) → Backend APIs → Interactive dashboard + Chat UI (Streamlit) + visualizations (Plotly/Leaflet)
-![alt text](image.png)
+![alt text](bluepy_rag_arch.png)
 ## Features
 
 - 🌊 **ARGO Data Ingestion**: Parse NetCDF files and normalize to structured formats
