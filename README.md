@@ -9,13 +9,13 @@ An intelligent conversational interface for querying and visualizing ARGO oceano
 
 ## Features
 
-- 🌊 **ARGO Data Ingestion**: Parse NetCDF files and normalize to structured formats
-- 🗄️ **Dual Storage**: PostgreSQL with PostGIS for spatial queries + Parquet for analytics
-- 🔍 **Vector Search**: FAISS/Chroma for semantic retrieval of profiles and metadata
-- 🤖 **RAG + MCP**: LLM-powered natural language to SQL translation with structured outputs
-- 🚀 **FastAPI Backend**: RESTful APIs for chat, queries, and data access
-- 📊 **Interactive Frontend**: Streamlit dashboard with chat, maps, and visualizations
-- 🗺️ **Geospatial Viz**: Leaflet maps for float trajectories, Plotly for profiles
+- **ARGO Data Ingestion**: Parse NetCDF files and normalize to structured formats
+- **Dual Storage**: PostgreSQL with PostGIS for spatial queries + Parquet for analytics
+- **Vector Search**: FAISS/Chroma for semantic retrieval of profiles and metadata
+- **RAG + MCP**: LLM-powered natural language to SQL translation with structured outputs
+- **FastAPI Backend**: RESTful APIs for chat, queries, and data access
+- **Interactive Frontend**: Streamlit dashboard with chat, maps, and visualizations
+- **Geospatial Viz**: Leaflet maps for float trajectories, Plotly for profiles
 
 ## Project Structure
 
