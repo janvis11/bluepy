@@ -21,18 +21,14 @@ from backend.rag.rag_orchestrator import get_orchestrator, initialize_orchestrat
 load_dotenv()
 
 
-# Lifespan context manager for startup/shutdown
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Application lifespan manager."""
-    # Startup
     logger.info("Starting BluePy API...")
     
-    # Test database connection
     if not test_connection():
         logger.error("Database connection failed!")
     
-    # Initialize RAG orchestrator
     try:
         initialize_orchestrator(
             embedding_provider=os.getenv("EMBEDDING_PROVIDER", "local"),
@@ -45,11 +41,9 @@ async def lifespan(app: FastAPI):
     
     yield
     
-    # Shutdown
     logger.info("Shutting down BluePy API...")
 
 
-# Create FastAPI app
 app = FastAPI(
     title="BluePy API",
     description="AI Conversational Interface for ARGO Data",
@@ -57,7 +51,6 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-# CORS middleware
 app.add_middleware(
     CORSMiddleware,
     allow_origins=os.getenv("CORS_ORIGINS", "http://localhost:8501").split(","),
@@ -67,7 +60,6 @@ app.add_middleware(
 )
 
 
-# Pydantic models
 class ChatRequest(BaseModel):
     """Chat request model."""
 
@@ -122,7 +114,6 @@ class FloatResponse(BaseModel):
     last_update: Optional[str]
 
 
-# Root endpoint
 @app.get("/")
 async def root():
     """Root endpoint."""
@@ -141,15 +132,12 @@ async def root():
     }
 
 
-# Health check
 @app.get("/health")
 async def health_check(db: Session = Depends(get_db)):
     """Health check endpoint."""
     try:
-        # Test database
         db.execute(text("SELECT 1"))
         
-        # Test orchestrator
         orchestrator = get_orchestrator()
         
         return {
@@ -164,7 +152,6 @@ async def health_check(db: Session = Depends(get_db)):
         }
 
 
-# Chat endpoint
 @app.post("/chat", response_model=ChatResponse)
 async def chat(request: ChatRequest):
     """
@@ -177,13 +164,10 @@ async def chat(request: ChatRequest):
     4. Returns results with visualization metadata
     """
     try:
-        # Generate session ID if not provided
         session_id = request.session_id or str(uuid.uuid4())
         
-        # Get orchestrator
         orchestrator = get_orchestrator()
         
-        # Process query
         response = orchestrator.process_query(
             user_query=request.message,
             session_id=session_id,
@@ -198,7 +182,6 @@ async def chat(request: ChatRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-# Get profiles with filters
 @app.get("/profiles", response_model=List[ProfileResponse])
 async def get_profiles(
     float_wmo: Optional[str] = Query(None, description="Filter by float WMO number"),
@@ -221,7 +204,6 @@ async def get_profiles(
     if end_date:
         query = query.filter(ArgoProfileMeta.timestamp <= end_date)
     
-    # Spatial filter
     if all([min_lat, max_lat, min_lon, max_lon]):
         query = query.filter(
             text(
@@ -248,17 +230,14 @@ async def get_profiles(
     ]
 
 
-# Get specific profile details
 @app.get("/profile/{profile_id}")
 async def get_profile_detail(profile_id: int, db: Session = Depends(get_db)):
     """Get detailed profile data including measurements."""
-    # Get profile metadata
     profile = db.query(ArgoProfileMeta).filter(ArgoProfileMeta.profile_id == profile_id).first()
     
     if not profile:
         raise HTTPException(status_code=404, detail="Profile not found")
     
-    # Get profile data (JSONB format)
     data_query = text(
         """
         SELECT depths, pressures, temperatures, salinities, 
@@ -296,7 +275,6 @@ async def get_profile_detail(profile_id: int, db: Session = Depends(get_db)):
     return response
 
 
-# Get floats
 @app.get("/floats", response_model=List[FloatResponse])
 async def get_floats(
     status: Optional[str] = Query(None, description="Filter by status"),
@@ -324,7 +302,6 @@ async def get_floats(
     ]
 
 
-# Get statistics
 @app.get("/statistics")
 async def get_statistics():
     """Get database statistics."""
@@ -337,7 +314,6 @@ async def get_statistics():
         raise HTTPException(status_code=500, detail=str(e))
 
 
-# Get GeoJSON for map
 @app.get("/map/geojson")
 async def get_map_geojson(
     start_date: Optional[str] = Query(None),
@@ -358,7 +334,6 @@ async def get_map_geojson(
     
     profiles = query.limit(limit).all()
     
-    # Build GeoJSON
     features = []
     for p in profiles:
         feature = {
@@ -386,7 +361,6 @@ async def get_map_geojson(
     return geojson
 
 
-# Clear session
 @app.delete("/session/{session_id}")
 async def clear_session(session_id: str):
     """Clear conversation history for a session."""
